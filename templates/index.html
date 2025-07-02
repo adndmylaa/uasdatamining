@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediksi Rumah Tangga Perempuan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f4f9ff;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            max-width: 700px;
+            margin-top: 50px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.08);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #2ecc71;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #27ae60;
+        }
+        .result-box {
+            background-color: #eafaf1;
+            border-left: 6px solid #2ecc71;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        canvas {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" data-aos="fade-up">
+        <h2><i class="bi bi-bar-chart-line-fill"></i> Prediksi Rumah Tangga Perempuan</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="daerah" class="form-label">📍 Pilih Daerah:</label>
+                <select class="form-select" name="daerah" id="daerah" required>
+                    {% for daerah in daerah_list %}
+                        <option value="{{ daerah }}">{{ daerah }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="umur" class="form-label">👩 Kelompok Umur:</label>
+                <select class="form-select" name="umur" id="umur" required>
+                    {% for umur in umur_list %}
+                        <option value="{{ umur }}">{{ umur }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="tahun" class="form-label">📅 Tahun Prediksi:</label>
+                <input type="number" class="form-control" name="tahun" id="tahun" min="2010" max="2025" value="2025" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-lightning-charge"></i> Prediksi</button>
+            </div>
+        </form>
+
+        {% if prediction %}
+        <div class="result-box mt-4" data-aos="fade-in">
+            <h5><i class="bi bi-graph-up"></i> <strong>Hasil Prediksi:</strong></h5>
+            <p><strong>Tahun:</strong> {{ tahun }}</p>
+            <ul class="list-unstyled">
+                <li>💖 Belum Kawin: <strong>{{ persen_belum_kawin|round(2) }}%</strong> (± {{ jumlah_belum_kawin }} orang)</li>
+                <li>💍 Kawin: <strong>{{ persen_kawin|round(2) }}%</strong> (± {{ jumlah_kawin }} orang)</li>
+                <li>💔 Cerai Hidup: <strong>{{ persen_cerai_hidup|round(2) }}%</strong> (± {{ jumlah_cerai_hidup }} orang)</li>
+                <li>🕊️ Cerai Mati: <strong>{{ persen_cerai_mati|round(2) }}%</strong> (± {{ jumlah_cerai_mati }} orang)</li>
+            </ul>
+            <canvas id="predictionChart"></canvas>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if prediction %}
+    <script>
+        // Data sudah diubah jadi JavaScript array valid via tojson
+        const chartValues = {{ [persen_belum_kawin, persen_kawin, persen_cerai_hidup, persen_cerai_mati] | tojson }};
+        
+        const chartData = {
+            labels: ['Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati'],
+            datasets: [{
+                label: 'Persentase',
+                data: chartValues,
+                backgroundColor: ['#f39c12', '#27ae60', '#e74c3c', '#8e44ad'],
+                borderWidth: 1
+            }]
+        };
+
+        const config = {
+            type: 'pie',
+            data: chartData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        };
+
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+        new Chart(ctx, config);
+    </script>
+    {% endif %}
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>AOS.init();</script>
+</body>
+</html>
